@@ -1,30 +1,24 @@
-const low = require('lowdb')
-const FileSync = require('lowdb/adapters/FileSync')
+const GoogleSpreadsheet = require('google-spreadsheet');
+const _ = require('lodash')
 
-const adapter = new FileSync('db.json')
-const db = low(adapter)
+const doc = new GoogleSpreadsheet('1Fm16jiOYLe0KfbQA5WQmVYqSGuu5OuiOA66q3h09cHE');
 
-db.defaults({ facts: [
-        {
-            title: 'frankFact is awesome',
-            description: 'too good to be true'
-        }
-    ]})
-    .write()
+function get () {
+    return new Promise((resolve, reject) => {
 
-async function create (newFrankFact) {
-    const createFact = await db.get('facts')
-        .push(newFrankFact)
-        .write()
-    return createFact
-}
+        return doc.getRows(1, (err, rows) => {
 
-async function get () {
-    const getFact = await db.get('facts').value()
-    return getFact[Math.floor(Math.random() * getFact.length)]
+            const facts = _.map(rows, (row) => {
+                return row.fact
+            })
+            const item = facts[Math.floor(Math.random()*facts.length)];
+
+            resolve(item)
+        })
+
+    })
 }
 
 module.exports = {
-	get,
-    create
+    get
 }
